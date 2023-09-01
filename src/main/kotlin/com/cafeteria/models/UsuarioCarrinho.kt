@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UsuarioCarrinho(
-    val id: String, val produto:
-    List<Produto>
+    val id: String,
+    val idUsuario: String,
+    val produto: List<Produto>
 )
