@@ -3,7 +3,6 @@ package com.cafeteria.routes
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.cafeteria.models.Usuario
-import com.cafeteria.models.UsuarioEndereco
 import com.mongodb.client.model.Filters.eq
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import io.ktor.http.*
@@ -45,6 +44,7 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                                 "nome" to validarUsuario.first().nome,
                                 "numeroTelefone" to validarUsuario.first().numeroTelefone,
                                 "endereco" to validarUsuario.first().endereco,
+                                "carrinho" to validarUsuario.first().carrinho
                             ),
                         )
                     } else {
@@ -89,7 +89,14 @@ fun Route.usuarioRouting(database: MongoDatabase) {
         }
         patch("/atualizarEndereco") {
             try {
-                val usuarioEndereco = call.receive<UsuarioEndereco>()
+
+            } catch (e: Exception) {
+                call.respondText("${e.message}")
+            }
+        }
+        patch("/atualizarCarrinho") {
+            try {
+
             } catch (e: Exception) {
                 call.respondText("${e.message}")
             }

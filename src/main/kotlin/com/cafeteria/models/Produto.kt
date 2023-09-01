@@ -1,9 +1,9 @@
 package com.cafeteria.models
 
-import java.util.*
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Produto(
     val id: String, val nome: String, val preco: Double, val quantidade: Int,
-    val imagem:
-    Base64,
+    val imagem: Byte
 )
