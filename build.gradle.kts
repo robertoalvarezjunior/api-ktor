@@ -1,4 +1,3 @@
-
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
@@ -25,6 +24,7 @@ repositories {
 
 dependencies {
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
+    implementation("org.mongodb:bson-kotlinx:4.10.1")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
