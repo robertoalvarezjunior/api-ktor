@@ -9,6 +9,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.flow.toList
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.util.*
 
 fun Route.usuarioEnderecoRouting(database: MongoDatabase) {
     route("/usuarioEndereco") {
@@ -29,7 +32,21 @@ fun Route.usuarioEnderecoRouting(database: MongoDatabase) {
             try {
                 val endereco = call.receive<UsuarioEndereco>()
 
-                collection.insertOne(endereco)
+                val decodeEndereco = Json.encodeToString(
+                    UsuarioEndereco(
+                        id = endereco.id ?: UUID.randomUUID().toString(),
+                        idUsuario = endereco.idUsuario,
+                        rua = endereco.rua,
+                        cidade = endereco.cidade,
+                        estado = endereco.estado,
+                        cep = endereco.cep,
+                        numero = endereco.numero,
+                        complemento = endereco.complemento
+                    )
+
+                )
+
+                collection.insertOne(Json.decodeFromString(decodeEndereco))
 
                 call.respondText("Endereço adicionado", status = HttpStatusCode.OK)
 
@@ -37,7 +54,7 @@ fun Route.usuarioEnderecoRouting(database: MongoDatabase) {
                 call.respondText("${e.message}")
             }
         }
-        
+
         put {
             try {
                 val endereco = call.receive<UsuarioEndereco>()

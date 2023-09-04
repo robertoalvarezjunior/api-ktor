@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UsuarioEndereco(
-    val id: String,
+    val id: String?,
     val idUsuario: String,
     val rua: String,
     val cidade: String,

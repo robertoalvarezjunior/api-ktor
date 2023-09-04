@@ -15,7 +15,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.*
 
-
 fun Route.usuarioRouting(database: MongoDatabase) {
     route("/usuario") {
         val collection = database.getCollection<Usuario>("usuarios")
@@ -40,7 +39,8 @@ fun Route.usuarioRouting(database: MongoDatabase) {
 
 
                 if (validarUsuario.isNotEmpty()) {
-                    if (validarUsuario.first().senha == usuario["senha"]) {
+                    if (validarUsuario.first().senha == usuario["senha"]
+                    ) {
 
                         val encodeUser = Json.encodeToString(
                             Usuario(
@@ -88,7 +88,17 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                         status = HttpStatusCode.Conflict
                     )
                 } else {
-                    collection.insertOne(usuario)
+                    val encodeUsuario = Json.encodeToString(
+                        Usuario(
+                            idUsuario = usuario.idUsuario ?: UUID.randomUUID().toString(),
+                            email = usuario.email,
+                            senha = usuario.senha,
+                            nome = usuario.nome,
+                            numeroTelefone = usuario.numeroTelefone
+                        )
+                    )
+
+                    collection.insertOne(Json.decodeFromString(encodeUsuario))
                     call.respondText(
                         "Usuário cadastrado com sucesso",
                         status = HttpStatusCode.Created
