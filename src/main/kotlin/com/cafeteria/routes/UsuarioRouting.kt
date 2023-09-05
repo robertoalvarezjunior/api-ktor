@@ -19,7 +19,7 @@ fun Route.usuarioRouting(database: MongoDatabase) {
     route("/usuario") {
         val collection = database.getCollection<Usuario>("usuarios")
 
-        get("/login") {
+        get {
             try {
                 val usuario = call.receive<Map<String, String>>()
 
@@ -49,6 +49,7 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                                 senha = validarUsuario.first().senha,
                                 nome = validarUsuario.first().nome,
                                 numeroTelefone = validarUsuario.first().numeroTelefone,
+                                enderecos = validarUsuario.first().enderecos,
                             )
                         )
 
@@ -76,7 +77,7 @@ fun Route.usuarioRouting(database: MongoDatabase) {
             }
         }
 
-        post("/cadastro") {
+        post {
             try {
                 val usuario = call.receive<Usuario>()
                 val verificarUsuario =
@@ -94,7 +95,8 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                             email = usuario.email,
                             senha = usuario.senha,
                             nome = usuario.nome,
-                            numeroTelefone = usuario.numeroTelefone
+                            numeroTelefone = usuario.numeroTelefone,
+                            enderecos = usuario.enderecos
                         )
                     )
 

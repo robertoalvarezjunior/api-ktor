@@ -4,6 +4,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Produto(
-    val id: String, val nome: String, val preco: Double, val quantidade: Int,
-    val imagem: String, val tag: String
+    val id: String?,
+    val nome: String,
+    val preco: Double,
+    val quantidade: Int,
+    val imagem: String,
+    val tag: String
 )

@@ -9,4 +9,5 @@ data class Usuario(
     val senha: String,
     val nome: String,
     val numeroTelefone: String,
+    val enderecos: List<UsuarioEndereco>?
 )

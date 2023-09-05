@@ -1,6 +1,7 @@
 package com.cafeteria.plugins
 
 import com.cafeteria.routes.produtosRouting
+import com.cafeteria.routes.usuarioCarrinhoRouting
 import com.cafeteria.routes.usuarioEnderecoRouting
 import com.cafeteria.routes.usuarioRouting
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
@@ -13,5 +14,6 @@ fun Application.configureRouting(database: MongoDatabase) {
         usuarioRouting(database = database)
         usuarioEnderecoRouting(database = database)
         produtosRouting(database = database)
+        usuarioCarrinhoRouting(database = database)
     }
 }
