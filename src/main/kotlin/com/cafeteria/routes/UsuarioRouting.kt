@@ -21,12 +21,12 @@ fun Route.usuarioRouting(database: MongoDatabase) {
 
         get {
             try {
-                val usuario = call.receive<Map<String, String>>()
+                val body = call.receive<Map<String, String>>()
 
                 val validarUsuario = collection.find(
                     eq(
                         Usuario::email.name,
-                        usuario["email"]
+                        body["email"]
                     )
                 ).toList()
 
@@ -34,12 +34,12 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                     .withAudience(System.getenv("audience"))
                     .withIssuer(System.getenv("issuer"))
                     .withExpiresAt(Date(System.currentTimeMillis() + 600000))
-                    .withPayload(mapOf(Usuario::email.name to usuario["email"]))
+                    .withPayload(mapOf(Usuario::email.name to body["email"]))
                     .sign(Algorithm.HMAC256(System.getenv("secret")))
 
 
                 if (validarUsuario.isNotEmpty()) {
-                    if (validarUsuario.first().senha == usuario["senha"]
+                    if (validarUsuario.first().senha == body["senha"]
                     ) {
 
                         val encodeUser = Json.encodeToString(
@@ -50,6 +50,7 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                                 nome = validarUsuario.first().nome,
                                 numeroTelefone = validarUsuario.first().numeroTelefone,
                                 enderecos = validarUsuario.first().enderecos,
+                                carrinho = validarUsuario.first().carrinho
                             )
                         )
 
@@ -79,9 +80,9 @@ fun Route.usuarioRouting(database: MongoDatabase) {
 
         post {
             try {
-                val usuario = call.receive<Usuario>()
+                val body = call.receive<Usuario>()
                 val verificarUsuario =
-                    collection.find(eq("email", usuario.email))
+                    collection.find(eq("email", body.email))
 
                 if (verificarUsuario.toList().isNotEmpty()) {
                     call.respondText(
@@ -91,12 +92,13 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                 } else {
                     val encodeUsuario = Json.encodeToString(
                         Usuario(
-                            idUsuario = usuario.idUsuario ?: UUID.randomUUID().toString(),
-                            email = usuario.email,
-                            senha = usuario.senha,
-                            nome = usuario.nome,
-                            numeroTelefone = usuario.numeroTelefone,
-                            enderecos = usuario.enderecos
+                            idUsuario = body.idUsuario ?: UUID.randomUUID().toString(),
+                            email = body.email,
+                            senha = body.senha,
+                            nome = body.nome,
+                            numeroTelefone = body.numeroTelefone,
+                            enderecos = body.enderecos,
+                            carrinho = body.carrinho
                         )
                     )
 
