@@ -8,6 +8,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.flow.toList
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.util.*
 
 fun Route.produtosRouting(database: MongoDatabase) {
 
@@ -23,7 +26,18 @@ fun Route.produtosRouting(database: MongoDatabase) {
             try {
                 val produto = call.receive<Produto>()
 
-                collection.insertOne(produto)
+                val encodeProduto = Json.encodeToString(
+                    Produto(
+                        id = produto.id ?: UUID.randomUUID().toString(),
+                        nome = produto.nome,
+                        preco = produto.preco,
+                        quantidade = produto.quantidade,
+                        imagem = produto.imagem,
+                        tag = produto.tag
+                    )
+                )
+
+                collection.insertOne(Json.decodeFromString(encodeProduto))
 
                 call.respondText(
                     "Produto adicionado com sucesso",
