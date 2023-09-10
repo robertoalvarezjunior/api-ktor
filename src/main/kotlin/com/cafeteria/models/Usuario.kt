@@ -10,5 +10,4 @@ data class Usuario(
     val nome: String,
     val numeroTelefone: String,
     val enderecos: List<UsuarioEndereco>?,
-    val carrinho: List<Produto>?
 )
