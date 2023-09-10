@@ -50,7 +50,6 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                                 nome = validarUsuario.first().nome,
                                 numeroTelefone = validarUsuario.first().numeroTelefone,
                                 enderecos = validarUsuario.first().enderecos,
-                                carrinho = validarUsuario.first().carrinho
                             )
                         )
 
@@ -98,7 +97,6 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                             nome = body.nome,
                             numeroTelefone = body.numeroTelefone,
                             enderecos = body.enderecos,
-                            carrinho = body.carrinho
                         )
                     )
 

@@ -1,7 +1,6 @@
 package com.cafeteria.routes
 
-import com.cafeteria.models.Produto
-import com.cafeteria.models.Usuario
+import com.cafeteria.models.UsuarioCarrinhoItens
 import com.mongodb.client.model.Filters.eq
 import com.mongodb.client.model.Updates
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
@@ -11,26 +10,32 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.util.*
 
 fun Route.usuarioCarrinhoRouting(database: MongoDatabase) {
     route("/usuarioCarrinho") {
-        val collection = database.getCollection<Usuario>("usuarios")
+        val collection =
+            database.getCollection<UsuarioCarrinhoItens>("usuarioCarrinhoItens")
 
         authenticate {
-            post("{idUsuario?}") {
+            post {
                 try {
-                    val body = call.receive<Produto>()
+                    val body = call.receive<UsuarioCarrinhoItens>()
 
-                    val param =
-                        call.parameters["idUsuario"] ?: return@post call.respondText(
-                            "Faltando id",
-                            status = HttpStatusCode.BadRequest
+                    val encodeBody = Json.encodeToString(
+                        UsuarioCarrinhoItens(
+                            id = body.id ?: UUID.randomUUID().toString(),
+                            idUsuario = body.idUsuario,
+                            quantidade = body.quantidade,
+                            produto = body.produto
                         )
+                    )
 
-                    val filter = eq(Usuario::idUsuario.name, param)
-                    val uptade = Updates.push(Usuario::carrinho.name, body)
+                    val decodeBody = Json.decodeFromString<UsuarioCarrinhoItens>(encodeBody)
 
-                    collection.findOneAndUpdate(filter, uptade)
+                    collection.insertOne(decodeBody)
 
                     call.respondText(
                         "Produto adicionado ao carrinho",
@@ -41,23 +46,50 @@ fun Route.usuarioCarrinhoRouting(database: MongoDatabase) {
                 }
             }
         }
-
         authenticate {
-            delete("{idUsuario?}") {
+            put("{id?}/{quantidade?}") {
                 try {
-                    val body = call.receive<Map<String, String>>()
+                    val paramId = call.parameters["id"] ?: return@put call.respondText(
+                        "Faltando id",
+                        status = HttpStatusCode.BadRequest
+                    )
 
-                    val param =
-                        call.parameters["idUsuario"] ?: return@delete call.respondText(
-                            "Faltando id",
-                            status = HttpStatusCode.BadRequest
-                        )
+                    val paramQnt = call.parameters["quantidade"] ?: return@put call.respondText(
+                        "Faltando id",
+                        status = HttpStatusCode.BadRequest
+                    )
 
-                    val filter = eq(Usuario::idUsuario.name, param)
+                    val filter = eq(
+                        UsuarioCarrinhoItens::id.name, paramId
+                    )
 
-                    val update = Updates.pull(Usuario::carrinho.name, body)
+                    val update = Updates.inc(
+                        UsuarioCarrinhoItens::quantidade.name,
+                        paramQnt.toInt()
+                    )
 
-                    collection.updateOne(filter, update)
+                    collection.findOneAndUpdate(filter, update)
+
+                    call.respondText(
+                        "Quantidade atualizada",
+                        status = HttpStatusCode.OK
+                    )
+                } catch (e: Exception) {
+                    call.respondText("${e.message}")
+                }
+            }
+        }
+        authenticate {
+            delete("{id?}") {
+                try {
+                    val param = call.parameters["id"] ?: return@delete call.respondText(
+                        "Faltando id",
+                        status = HttpStatusCode.BadRequest
+                    )
+
+                    val filter = eq(UsuarioCarrinhoItens::id.name, param)
+
+                    collection.deleteOne(filter)
 
                     call.respondText(
                         "Produto removido do carrinho",

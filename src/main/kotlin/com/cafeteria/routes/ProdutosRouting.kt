@@ -30,6 +30,7 @@ fun Route.produtosRouting(database: MongoDatabase) {
                     Produto(
                         id = produto.id ?: UUID.randomUUID().toString(),
                         nome = produto.nome,
+                        descricao = produto.descricao,
                         preco = produto.preco,
                         imagem = produto.imagem,
                         tag = produto.tag
