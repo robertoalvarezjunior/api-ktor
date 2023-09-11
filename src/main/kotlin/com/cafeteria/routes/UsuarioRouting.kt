@@ -13,20 +13,29 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import java.util.*
 
 fun Route.usuarioRouting(database: MongoDatabase) {
     route("/usuario") {
         val collection = database.getCollection<Usuario>("usuarios")
 
-        get {
+        post("/login/{email?}/{senha?}") {
             try {
-                val body = call.receive<Map<String, String>>()
+                val paramEmail = call.parameters["email"] ?: return@post call.respondText(
+                    "Faltando email",
+                    status = HttpStatusCode.BadRequest
+                )
+
+                val paramSenha = call.parameters["senha"] ?: return@post call.respondText(
+                    "Faltando senha",
+                    status = HttpStatusCode.BadRequest
+                )
 
                 val validarUsuario = collection.find(
                     eq(
                         Usuario::email.name,
-                        body["email"]
+                        paramEmail
                     )
                 ).toList()
 
@@ -34,12 +43,12 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                     .withAudience(System.getenv("audience"))
                     .withIssuer(System.getenv("issuer"))
                     .withExpiresAt(Date(System.currentTimeMillis() + 600000))
-                    .withPayload(mapOf(Usuario::email.name to body["email"]))
+                    .withPayload(mapOf(Usuario::email.name to paramEmail))
                     .sign(Algorithm.HMAC256(System.getenv("secret")))
 
 
                 if (validarUsuario.isNotEmpty()) {
-                    if (validarUsuario.first().senha == body["senha"]
+                    if (validarUsuario.first().senha == paramSenha
                     ) {
 
                         val encodeUser = Json.encodeToString(
@@ -54,10 +63,12 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                         )
 
                         call.respond(
-                            hashMapOf(
-                                "token" to token,
-                                "usuario" to encodeUser
-                            ),
+                            Json.encodeToJsonElement(
+                                mapOf(
+                                    "token" to token,
+                                    "usuario" to encodeUser
+                                )
+                            )
                         )
                     } else {
                         call.respondText(
@@ -77,7 +88,7 @@ fun Route.usuarioRouting(database: MongoDatabase) {
             }
         }
 
-        post {
+        post("/cadastro") {
             try {
                 val body = call.receive<Usuario>()
                 val verificarUsuario =

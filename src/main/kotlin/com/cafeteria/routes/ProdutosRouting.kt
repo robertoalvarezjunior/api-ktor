@@ -10,6 +10,7 @@ import io.ktor.server.routing.*
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import java.util.*
 
 fun Route.produtosRouting(database: MongoDatabase) {
@@ -19,7 +20,7 @@ fun Route.produtosRouting(database: MongoDatabase) {
         get {
             val produtos = collection.find().toList()
 
-            call.respond(produtos)
+            call.respond(Json.encodeToJsonElement(produtos))
         }
 
         post {

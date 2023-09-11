@@ -10,14 +10,39 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import java.util.*
 
 fun Route.usuarioCarrinhoRouting(database: MongoDatabase) {
     route("/usuarioCarrinho") {
         val collection =
             database.getCollection<UsuarioCarrinhoItens>("usuarioCarrinhoItens")
+
+        authenticate {
+            get("{id?}") {
+                try {
+                    val param = call.parameters["id"] ?: return@get call.respondText(
+                        "Faltando id",
+                        status = HttpStatusCode.BadRequest
+                    )
+
+                    val carrinhoItens =
+                        collection.find(eq(UsuarioCarrinhoItens::idUsuario.name, param))
+                            .toList()
+
+                    call.respond(
+                        Json.encodeToJsonElement(carrinhoItens)
+                    )
+
+                } catch (e: Exception) {
+                    call.respondText("${e.message}")
+                }
+
+            }
+        }
 
         authenticate {
             post {
