@@ -19,12 +19,12 @@ import java.util.*
 fun Route.usuarioCarrinhoRouting(database: MongoDatabase) {
     route("/usuarioCarrinho") {
         val collection =
-            database.getCollection<UsuarioCarrinhoItens>("usuarioCarrinhoItens")
+            database.getCollection<UsuarioCarrinhoItens>("usuariosCarrinhoItens")
 
         authenticate {
-            get("{id?}") {
+            get("{idUsuario?}") {
                 try {
-                    val param = call.parameters["id"] ?: return@get call.respondText(
+                    val param = call.parameters["idUsuario"] ?: return@get call.respondText(
                         "Faltando id",
                         status = HttpStatusCode.BadRequest
                     )
@@ -47,7 +47,7 @@ fun Route.usuarioCarrinhoRouting(database: MongoDatabase) {
         authenticate {
             post {
                 try {
-                    val body = call.receive<UsuarioCarrinhoItens>()
+                    val body = Json.decodeFromString<UsuarioCarrinhoItens>(call.receive<String>())
 
                     val encodeBody = Json.encodeToString(
                         UsuarioCarrinhoItens(

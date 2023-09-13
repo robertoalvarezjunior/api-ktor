@@ -23,6 +23,7 @@ repositories {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-server-cors:$ktor_version")
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
     implementation("org.mongodb:bson-kotlinx:4.10.1")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")

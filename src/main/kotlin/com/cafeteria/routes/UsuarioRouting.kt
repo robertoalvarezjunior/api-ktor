@@ -42,7 +42,7 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                 val token = JWT.create()
                     .withAudience(System.getenv("audience"))
                     .withIssuer(System.getenv("issuer"))
-                    .withExpiresAt(Date(System.currentTimeMillis() + 600000))
+                    .withExpiresAt(Date(System.currentTimeMillis() + 60000000))
                     .withPayload(mapOf(Usuario::email.name to paramEmail))
                     .sign(Algorithm.HMAC256(System.getenv("secret")))
 
@@ -58,7 +58,6 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                                 senha = validarUsuario.first().senha,
                                 nome = validarUsuario.first().nome,
                                 numeroTelefone = validarUsuario.first().numeroTelefone,
-                                enderecos = validarUsuario.first().enderecos,
                             )
                         )
 
@@ -90,7 +89,7 @@ fun Route.usuarioRouting(database: MongoDatabase) {
 
         post("/cadastro") {
             try {
-                val body = call.receive<Usuario>()
+                val body = Json.decodeFromString<Usuario>(call.receive<String>())
                 val verificarUsuario =
                     collection.find(eq("email", body.email))
 
@@ -107,7 +106,6 @@ fun Route.usuarioRouting(database: MongoDatabase) {
                             senha = body.senha,
                             nome = body.nome,
                             numeroTelefone = body.numeroTelefone,
-                            enderecos = body.enderecos,
                         )
                     )
 
